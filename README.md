@@ -2,7 +2,7 @@
 
 > [English](README.md) | [한국어](README-ko.md)
 
-A lightweight daemon that displays Claude CLI usage statistics directly in your terminal status line.
+Displays Claude CLI usage statistics directly in your terminal status line.
 
 ![Demo](images/a.png)
 
@@ -10,6 +10,12 @@ A lightweight daemon that displays Claude CLI usage statistics directly in your 
 
 - [Claude Code](https://claude.com/code)
 - Rust toolchain (install via [rustup](https://rustup.rs/))
+
+## ❓ How does it work?
+
+`claude-usage-line` retrieves usage statistics by parsing the output of Claude CLI's `/usage` command. Since the statusLine has a 5-second timeout and `/usage` can take longer than that, the tool runs as a background process to avoid blocking the terminal.
+
+The background process automatically shuts down after a period of inactivity (default: 10 minutes via `--idle-timeout`). When a new request arrives, the idle timer resets, keeping the process alive as long as it's being used. Retrieved data is cached for fast responses.
 
 ## 🚀 Quick Start
 
@@ -27,10 +33,10 @@ cargo install --git https://github.com/somersby10ml/claude-usage-line
 |--------|-------------|---------|---------|------|
 | `--debug` | Enable debug logging | `false` | `claude-usage-line --debug` | - |
 | `--refresh-interval` | Usage refresh interval | `4` | `claude-usage-line --refresh-interval 5` | minutes |
-| `--idle-timeout` | Daemon idle timeout before shutdown | `10` | `claude-usage-line --idle-timeout 15` | minutes |
+| `--idle-timeout` | Idle timeout before background process shutdown | `10` | `claude-usage-line --idle-timeout 15` | minutes |
 | `--ccjs` | Custom path to Claude Code cli.js | (auto-detected) | `claude-usage-line --ccjs /path/to/cli.js` | - |
 
-**Note**: When using in `statusLine.command`, you typically don't need to specify any options. The daemon will be spawned automatically with default settings.
+**Note**: When using in `statusLine.command`, you typically don't need to specify any options. The background process will be spawned automatically with default settings.
 
 ### 3. Configure Claude Code
 
@@ -97,7 +103,7 @@ If usage statistics don't appear or update after initial installation:
    ```
 2. Ask Claude again to refresh the status line
 
-The daemon caches data every 4 minutes by default. If changes don't appear immediately, restarting the process will force a fresh cache.
+Data is cached every 4 minutes by default. If changes don't appear immediately, restarting the process will force a fresh cache.
 
 ## 🗑️ Uninstall
 
@@ -113,6 +119,14 @@ The daemon caches data every 4 minutes by default. If changes don't appear immed
 3. Uninstall via cargo:
    ```bash
    cargo uninstall claude-usage-line
+   ```
+4. Delete cache directory:
+   ```bash
+   # Windows
+   rmdir /s /q "%LOCALAPPDATA%\claude-usage-line"
+
+   # Linux/macOS
+   rm -rf ~/.cache/claude-usage-line
    ```
 
 ## 💬 Issues

@@ -2,7 +2,7 @@
 
 > [English](README.md) | [한국어](README-ko.md)
 
-터미널 상태 줄에 Claude CLI 사용량 통계를 실시간으로 표시하는 경량 데몬입니다.
+터미널 상태 줄에 Claude CLI 사용량 통계를 실시간으로 표시합니다.
 
 ![데모](images/a.png)
 
@@ -10,6 +10,12 @@
 
 - [Claude Code](https://claude.com/code)
 - Rust 툴체인 ([rustup](https://rustup.rs/)으로 설치)
+
+## ❓ 어떻게 동작하나요?
+
+`claude-usage-line`은 Claude CLI의 `/usage` 명령 출력을 파싱하여 사용량 통계를 가져옵니다. statusLine은 5초 타임아웃이 있는데 `/usage` 명령이 5초 이상 걸릴 수 있기 때문에, 터미널을 차단하지 않도록 백그라운드 프로세스로 실행됩니다.
+
+백그라운드 프로세스는 비활성 상태가 일정 시간(기본값: 10분, `--idle-timeout` 옵션으로 설정) 지속되면 자동으로 종료됩니다. 새로운 요청이 들어오면 대기 타이머가 리셋되어 사용 중인 동안 프로세스를 계속 유지합니다. 조회된 데이터는 캐시되어 빠른 응답을 제공합니다.
 
 ## 🚀 빠른 시작
 
@@ -27,10 +33,10 @@ cargo install --git https://github.com/somersby10ml/claude-usage-line
 |------|------|--------|------|------|
 | `--debug` | 디버그 로깅 활성화 | `false` | `claude-usage-line --debug` | - |
 | `--refresh-interval` | 사용량 새로고침 주기 | `4` | `claude-usage-line --refresh-interval 5` | 분 |
-| `--idle-timeout` | 데몬 종료 전 대기 시간 | `10` | `claude-usage-line --idle-timeout 15` | 분 |
+| `--idle-timeout` | 백그라운드 프로세스 종료 전 대기 시간 | `10` | `claude-usage-line --idle-timeout 15` | 분 |
 | `--ccjs` | Claude Code cli.js 커스텀 경로 | (자동 감지) | `claude-usage-line --ccjs /path/to/cli.js` | - |
 
-**참고**: `statusLine.command`에서 사용할 때는 일반적으로 옵션을 지정할 필요가 없습니다. 데몬이 자동으로 기본 설정으로 실행됩니다.
+**참고**: `statusLine.command`에서 사용할 때는 일반적으로 옵션을 지정할 필요가 없습니다. 백그라운드 프로세스가 자동으로 기본 설정으로 실행됩니다.
 
 ### 3. Claude Code 설정
 
@@ -97,7 +103,7 @@ claude-usage-line
    ```
 2. Claude에게 다시 질문하여 상태 줄을 새로고침합니다
 
-데몬은 기본적으로 4분마다 데이터를 캐시합니다. 변경사항이 즉시 나타나지 않으면 프로세스를 재시작하여 새 캐시를 강제로 생성할 수 있습니다.
+기본적으로 4분마다 데이터를 캐시합니다. 변경사항이 즉시 나타나지 않으면 프로세스를 재시작하여 새 캐시를 강제로 생성할 수 있습니다.
 
 ## 🗑️ 제거
 
@@ -113,6 +119,14 @@ claude-usage-line
 3. cargo로 제거:
    ```bash
    cargo uninstall claude-usage-line
+   ```
+4. 캐시 디렉토리 삭제:
+   ```bash
+   # Windows
+   rmdir /s /q "%LOCALAPPDATA%\claude-usage-line"
+
+   # Linux/macOS
+   rm -rf ~/.cache/claude-usage-line
    ```
 
 ## 💬 이슈
