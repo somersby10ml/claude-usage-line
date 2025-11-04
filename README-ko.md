@@ -47,6 +47,7 @@ cargo install --git https://github.com/somersby10ml/claude-usage-line
 ```json
 {
   "statusLine": {
+    "type": "command",
     "command": "claude-usage-line"
   }
 }
@@ -61,6 +62,7 @@ cargo install --git https://github.com/somersby10ml/claude-usage-line
 ```json
 {
   "statusLine": {
+    "type": "command",
     "command": "printf '\\033[01;32m%s@%s\\033[00m:\\033[01;34m%s\\033[00m\\n' \"$(whoami)\" \"$(hostname -s)\" \"$(pwd)\" ; claude-usage-line"
   }
 }
