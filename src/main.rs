@@ -40,6 +40,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
     if args.daemon {
+        // Skip if called from internal usage capture (prevents circular wake signal)
+        if env::var("CLAUDE_USAGE_LINE_INTERNAL").is_ok() {
+            return Ok(());
+        }
+
         // Daemon mode: enable debug logging if requested, then run background process
         if args.debug {
             common::enable_debug_logging()?;
@@ -185,6 +190,11 @@ fn spawn_daemon(debug_mode: bool, refresh_min: u64, idle_min: u64, ccjs: Option<
 
     let mut cmd = Command::new(current_exe);
     cmd.arg("--daemon");
+
+    // Set cwd to work dir so daemon doesn't hold project folder
+    if let Ok(work_dir) = common::get_work_dir() {
+        cmd.current_dir(work_dir);
+    }
 
     if debug_mode {
         cmd.arg("--debug");

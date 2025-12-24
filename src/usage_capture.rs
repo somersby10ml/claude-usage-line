@@ -57,6 +57,8 @@ pub fn fetch_and_parse_usage(custom_cli_path: Option<&str>) -> Result<UsageData,
     cmd.arg(&cli_path);
     cmd.arg("/usage");
     cmd.cwd(work_dir);
+    // Prevent circular wake signal when status line hook triggers
+    cmd.env("CLAUDE_USAGE_LINE_INTERNAL", "1");
 
     let mut child = pair.slave.spawn_command(cmd)?;
     drop(pair.slave);
